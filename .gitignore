@@ -1,0 +1,18 @@
+# Artefatos de compilacao e simulacao Synopsys VCS
+simv*
+csrc/
+*.daidir/
+*.vcd
+*.fsdb
+*.log
+ucli.key
+AN.DB/
+DVEfiles/
+
+# Vetores gerados em tempo de execucao
+*.hex
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
