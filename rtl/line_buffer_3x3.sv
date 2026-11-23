@@ -24,14 +24,16 @@ module line_buffer_3x3 #(
     logic [$clog2(IMG_WIDTH):0]  col_cnt;
     logic [$clog2(IMG_HEIGHT):0] row_cnt;
     logic                        v_d1;
+    logic [$clog2(IMG_WIDTH):0]  col_d1;
+    logic [$clog2(IMG_HEIGHT):0] row_d1;
 
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             col_cnt   <= '0;
             row_cnt   <= '0;
             v_d1      <= 1'b0;
-            win_valid <= 1'b0;
-            win_last  <= 1'b0;
+            col_d1    <= '0;
+            row_d1    <= '0;
             r0_c0 <= '0; r0_c1 <= '0; r0_c2 <= '0;
             r1_c0 <= '0; r1_c1 <= '0; r1_c2 <= '0;
             r2_c0 <= '0; r2_c1 <= '0; r2_c2 <= '0;
@@ -40,7 +42,9 @@ module line_buffer_3x3 #(
                 line2[i] <= '0;
             end
         end else if (en) begin
-            v_d1 <= valid_in;
+            v_d1   <= valid_in;
+            col_d1 <= col_cnt;
+            row_d1 <= row_cnt;
 
             if (valid_in) begin
                 logic [7:0] l1_val, l2_val;
@@ -72,18 +76,18 @@ module line_buffer_3x3 #(
                     col_cnt <= col_cnt + 1'b1;
                 end
             end
-
-            // Apos 2 linhas completas (row_cnt >= 2), os primeiros 3 pixels de cada linha
-            // formam a janela (x=1, y=row_cnt-1) quando col_cnt >= 3 (ou col_cnt == 0 no wrap)
-            win_valid <= v_d1 && (row_cnt >= 2) && ((col_cnt >= 3) || (col_cnt == 0)) && !((row_cnt == 2) && (col_cnt == 0));
-            win_last  <= v_d1 && (row_cnt >= 2) && (col_cnt == 0) && (row_cnt > 2);
         end
     end
 
+    // Quando v_d1=1, r*c2 contem o pixel aceito em (row_d1, col_d1)
+    // e r*c0..r*c2 formam uma janela 3x3 valida a partir de row_d1 >= 2 e col_d1 >= 2
     always_comb begin
         p00 = r0_c0; p01 = r0_c1; p02 = r0_c2;
         p10 = r1_c0; p11 = r1_c1; p12 = r1_c2;
         p20 = r2_c0; p21 = r2_c1; p22 = r2_c2;
+
+        win_valid = v_d1 && (row_d1 >= 2) && (col_d1 >= 2);
+        win_last  = win_valid && (col_d1 == IMG_WIDTH - 1);
     end
 
 endmodule

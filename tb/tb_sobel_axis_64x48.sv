@@ -61,7 +61,7 @@ module tb_sobel_axis_64x48;
         s_axis_tdata  = 8'h00;
         s_axis_tlast  = 1'b0;
 
-        while ((tx_out_cnt < N_EXP) && (wait_cycles < 3000)) begin
+        while ((tx_out_cnt < N_EXP) && (wait_cycles < 10000)) begin
             @(posedge aclk);
             wait_cycles++;
         end

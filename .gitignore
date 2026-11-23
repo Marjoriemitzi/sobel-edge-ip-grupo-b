@@ -16,3 +16,4 @@ DVEfiles/
 __pycache__/
 *.py[cod]
 .venv/
+build_img/
