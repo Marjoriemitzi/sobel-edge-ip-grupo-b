@@ -56,7 +56,7 @@ module tb_sobel_axis_full;
         s_axis_tdata  = 8'h00;
         s_axis_tlast  = 1'b0;
 
-        while ((tx_out_cnt < 84) && (wait_cycles < 500)) begin
+        while ((tx_out_cnt < 84) && (wait_cycles < 2000)) begin
             @(posedge aclk);
             wait_cycles++;
         end

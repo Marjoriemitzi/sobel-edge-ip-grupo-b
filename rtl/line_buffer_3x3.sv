@@ -4,6 +4,7 @@ module line_buffer_3x3 #(
 ) (
     input  logic       clk,
     input  logic       rst_n,
+    input  logic       en,
     input  logic       valid_in,
     input  logic [7:0] pixel_in,
     output logic       win_valid,
@@ -38,7 +39,7 @@ module line_buffer_3x3 #(
                 line1[i] <= '0;
                 line2[i] <= '0;
             end
-        end else begin
+        end else if (en) begin
             v_d1 <= valid_in;
 
             if (valid_in) begin
@@ -61,7 +62,6 @@ module line_buffer_3x3 #(
                 r2_c1 <= r2_c2;
                 r2_c0 <= r2_c1;
 
-                // Marca que a janela formada neste ciclo termina na ultima coluna de uma linha valida
                 last_win_d1 <= (row_cnt >= 2) && (col_cnt == IMG_WIDTH - 1);
 
                 if (col_cnt == IMG_WIDTH - 1) begin
@@ -84,7 +84,6 @@ module line_buffer_3x3 #(
         p10 = r1_c0; p11 = r1_c1; p12 = r1_c2;
         p20 = r2_c0; p21 = r2_c1; p22 = r2_c2;
 
-        // Na linha valida (row_cnt >= 2), apos o wrap de col_cnt para 0, col_cnt_prev era IMG_WIDTH - 1
         win_valid = v_d1 && (row_cnt >= 2) && ((col_cnt >= 3) || (col_cnt == 0));
         win_last  = win_valid && last_win_d1;
     end

@@ -37,7 +37,8 @@ module sobel_axis #(
     ) u_line_buf (
         .clk(aclk),
         .rst_n(aresetn),
-        .valid_in(s_fire && pipe_ready),
+        .en(pipe_ready),
+        .valid_in(s_fire),
         .pixel_in(s_axis_tdata),
         .win_valid(win_valid),
         .win_last(win_last),

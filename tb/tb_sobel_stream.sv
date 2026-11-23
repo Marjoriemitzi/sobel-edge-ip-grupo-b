@@ -26,6 +26,7 @@ module tb_sobel_stream;
     line_buffer_3x3 #(.IMG_WIDTH(W), .IMG_HEIGHT(H)) u_lb (
         .clk(clk),
         .rst_n(rst_n),
+        .en(1'b1),
         .valid_in(valid_in),
         .pixel_in(pixel_in),
         .win_valid(win_valid),
