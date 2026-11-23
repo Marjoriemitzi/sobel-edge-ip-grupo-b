@@ -18,7 +18,8 @@ module tb_sobel_golden;
 
     always #5 clk = ~clk;
 
-    sobel_core dut (.*);
+    sobel_core dut (
+        .en(1'b1),.*);
 
     int errors = 0;
     int out_idx = 0;

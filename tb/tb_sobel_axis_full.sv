@@ -24,13 +24,13 @@ module tb_sobel_axis_full;
     int tx_out_cnt = 0;
     int edge_out_cnt = 0;
     int tlast_out_cnt = 0;
+    int wait_cycles = 0;
     int errors = 0;
 
     always #5 aclk = ~aclk;
 
     sobel_axis #(.IMG_WIDTH(W), .IMG_HEIGHT(H)) dut (.*);
 
-    // Gera backpressure pseudo-aleatorio em m_axis_tready
     always @(posedge aclk or negedge aresetn) begin
         if (!aresetn)
             m_axis_tready <= 1'b0;
@@ -56,7 +56,11 @@ module tb_sobel_axis_full;
         s_axis_tdata  = 8'h00;
         s_axis_tlast  = 1'b0;
 
-        repeat (60) @(posedge aclk);
+        while ((tx_out_cnt < 84) && (wait_cycles < 500)) begin
+            @(posedge aclk);
+            wait_cycles++;
+        end
+        repeat (5) @(posedge aclk);
 
         if (tx_out_cnt != 84) begin
             $display("ERRO: esperadas 84 transferencias AXI de saida, obtidas %0d", tx_out_cnt);
@@ -72,6 +76,7 @@ module tb_sobel_axis_full;
         $display("Transferencias AXI saida : %0d", tx_out_cnt);
         $display("Pixels borda (0xFF)      : %0d", edge_out_cnt);
         $display("Pulsos m_axis_tlast      : %0d", tlast_out_cnt);
+        $display("Ciclos de drenagem       : %0d", wait_cycles);
         $display("Status                   : %s", (errors == 0) ? "PASSOU" : "FALHOU");
         $display("==================================================");
         $finish;

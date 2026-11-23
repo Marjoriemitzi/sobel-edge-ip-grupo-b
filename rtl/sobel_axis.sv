@@ -37,7 +37,7 @@ module sobel_axis #(
     ) u_line_buf (
         .clk(aclk),
         .rst_n(aresetn),
-        .valid_in(s_fire),
+        .valid_in(s_fire && pipe_ready),
         .pixel_in(s_axis_tdata),
         .win_valid(win_valid),
         .win_last(win_last),
@@ -49,7 +49,8 @@ module sobel_axis #(
     sobel_core u_sobel_core (
         .clk(aclk),
         .rst_n(aresetn),
-        .valid_in(win_valid && pipe_ready),
+        .en(pipe_ready),
+        .valid_in(win_valid),
         .p00(p00), .p01(p01), .p02(p02),
         .p10(p10), .p11(p11), .p12(p12),
         .p20(p20), .p21(p21), .p22(p22),
@@ -59,17 +60,15 @@ module sobel_axis #(
         .edge_out(edge_out)
     );
 
-    // 3 ciclos dentro do sobel_core: entra no ciclo 0, sai de core_valid_out no ciclo 3
     logic [2:0] last_in_core;
     always_ff @(posedge aclk or negedge aresetn) begin
         if (!aresetn) begin
             last_in_core <= 3'b0;
         end else if (pipe_ready) begin
-            last_in_core <= {last_in_core[1:0], (win_valid && pipe_ready && win_last)};
+            last_in_core <= {last_in_core[1:0], (win_valid && win_last)};
         end
     end
 
-    // Registrador de saida AXI-Stream (1 ciclo apos core_valid_out)
     always_ff @(posedge aclk or negedge aresetn) begin
         if (!aresetn) begin
             m_axis_tvalid <= 1'b0;

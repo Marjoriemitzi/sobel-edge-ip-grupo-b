@@ -12,7 +12,8 @@ module tb_sobel_core;
 
     always #5 clk = ~clk; // Clock de 100 MHz (período = 10 ns)
 
-    sobel_core dut (.*);
+    sobel_core dut (
+        .en(1'b1),.*);
 
     initial begin
         $dumpfile("sobel.vcd");
