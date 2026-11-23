@@ -33,3 +33,12 @@
 - **Comparações planejadas:**
   - Avaliar o *trade-off* entre manter 1 núcleo serial/pipelined (menor área de lógica e buffers) versus variantes com maior paralelismo ou *throughput* em síntese lógica.
   - Expandir o **Golden Model em Python** para testar imagens maiores/reais e validar casos com *backpressure* (`m_axis_tready` alternando) e `s_axis_tlast` explícito.
+
+## 5. Análise Detalhada: Área vs. Desempenho
+- **Baseline atual (1 core pipelined de 3 estágios + 2 line buffers):**
+  - **Área:** evita multiplicadores/DSPs (usa `<< 1` e somadores/subtratores) e evita lógica de arco-tangente/raiz quadrada (usa $|G_x| + |G_y|$). A memória de linha ocupa $2 \times W \times 8\text{ bits}$ (mais registradores `3×3` de `8 bits`), escalando linearmente com a largura `W`.
+  - **Desempenho:** inicia 1 nova janela por ciclo útil quando `pipe_ready` está ativo (`1 pixel/ciclo` em fluxo contínuo AXI-Stream), com latência fixa de pipeline (`1` ciclo do line buffer + `3` estágios do `sobel_core` + `1` registrador de saída).
+- **Alternativas para comparação (síntese / exploração arquitetural):**
+  1. **Variante de menor área (serialização / compartilhamento de somadores):** reduz combinacional em troca de mais ciclos por pixel — inviável se comprometer a meta de ~15 FPS em resoluções maiores.
+  2. **Variante de maior throughput (múltiplos pixels/ciclo ou núcleos paralelos):** dobra/multiplica o processamento por ciclo, mas aumenta buffers de linha, multiplexação e área de somadores/comparadores.
+  3. **Critério de decisão:** manter o baseline de 3 estágios sem multiplicadores e com *backpressure* limpo como ponto de partida estável para integração e síntese.
